@@ -1,2 +1,2 @@
-# J2534-Rust
-Cross platform J2534 definition for Rust
+# J2534 protocol for rust
+This contains a cross-platform implementation of the SAE J2534 protocol (Passthru) API for car diagnostics
