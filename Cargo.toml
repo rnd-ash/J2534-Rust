@@ -1,8 +1,16 @@
 [package]
 name = "j2534_rust"
 version = "0.2.0"
+keywords = ["cars", "OBD", "passthru", "diagnostics"]
+description = "Cross platform SAE J2534 bindings"
+repository = "https://github.com/rnd-ash/J2534-Rust"
 authors = ["Ashcon Mohseninia <ashconm@outlook.com>"]
+readme="README.md"
 edition = "2018"
+
+[package.metadata.docs.rs]
+all-features = true
+default-target = "i686-pc-windows-msvc"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
