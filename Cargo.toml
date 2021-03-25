@@ -1,5 +1,5 @@
 [package]
-name = "j2534-rust"
+name = "j2534_rust"
 version = "0.2.0"
 authors = ["Ashcon Mohseninia <ashconm@outlook.com>"]
 edition = "2018"
