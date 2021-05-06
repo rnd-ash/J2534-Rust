@@ -388,7 +388,7 @@ impl std::fmt::Display for PASSTHRU_MSG {
 #[repr(C, packed(1))]
 pub struct SBYTE_ARRAY {
     pub num_of_bytes: u32,
-    pub byte_ptr: *const u8,
+    pub byte_ptr: *mut u8,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -403,11 +403,4 @@ pub struct SConfig {
 pub struct SConfigList {
     pub num_of_params: u32,
     pub config_ptr: *mut SConfig,
-}
-
-#[test]
-fn test_fail() {
-    let x: u32 = 0x0B;
-    let res = Protocol::from_u32(x);
-    println!("{:?}", res);
 }
