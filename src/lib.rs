@@ -346,7 +346,7 @@ bitflags! {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-#[repr(C, packed(1))]
+#[repr(C)]
 pub struct PASSTHRU_MSG {
     pub protocol_id: u32,
     pub rx_status: u32,
@@ -385,21 +385,21 @@ impl std::fmt::Display for PASSTHRU_MSG {
 }
 
 #[derive(Debug, Copy, Clone)]
-#[repr(C, packed(1))]
+#[repr(C)]
 pub struct SBYTE_ARRAY {
     pub num_of_bytes: u32,
     pub byte_ptr: *mut u8,
 }
 
 #[derive(Debug, Copy, Clone)]
-#[repr(C, packed(1))]
+#[repr(C)]
 pub struct SConfig {
     pub parameter: u32,
     pub value: u32,
 }
 
 #[derive(Debug, Copy, Clone)]
-#[repr(C, packed(1))]
+#[repr(C)]
 pub struct SConfigList {
     pub num_of_params: u32,
     pub config_ptr: *mut SConfig,
