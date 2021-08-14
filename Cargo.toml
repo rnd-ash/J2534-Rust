@@ -7,6 +7,7 @@ repository = "https://github.com/rnd-ash/J2534-Rust"
 authors = ["Ashcon Mohseninia <ashconm@outlook.com>"]
 readme="README.md"
 edition = "2018"
+license = "MIT"
 
 [package.metadata.docs.rs]
 all-features = true
