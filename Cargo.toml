@@ -1,6 +1,6 @@
 [package]
 name = "j2534_rust"
-version = "0.2.0"
+version = "1.0.0"
 keywords = ["cars", "OBD", "passthru", "diagnostics"]
 description = "Cross platform SAE J2534 bindings"
 repository = "https://github.com/rnd-ash/J2534-Rust"
