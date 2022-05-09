@@ -1,26 +1,12 @@
 #[macro_use]
 extern crate bitflags;
-
-use std::fmt::Display;
-
-use serde::{Deserialize, Serialize};
-use num_derive::FromPrimitive;
-use num_traits::FromPrimitive;
+use std::{fmt::Display, convert::TryFrom};
 
 // SAE J2534 API definition,
 // Based on J2534.h
 
-pub trait Loggable {
-    fn to_string(&self) -> &str;
-}
-
-pub trait Parsable {
-    fn from_raw(x: u32) -> Option<Self> where Self: Sized;
-}
-
-
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, FromPrimitive, Deserialize, Serialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum Protocol {
     J1850VPW = 0x01,
@@ -33,6 +19,26 @@ pub enum Protocol {
     SCI_A_TRANS = 0x08,
     SCI_B_ENGINE = 0x09,
     SCI_B_TRANS = 0x0A,
+}
+
+impl TryFrom<u32> for Protocol {
+    type Error = ();
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            0x01 => Protocol::J1850VPW,
+            0x02 => Protocol::J1850PWM,
+            0x03 => Protocol::ISO9141,
+            0x04 => Protocol::ISO14230,
+            0x05 => Protocol::CAN,
+            0x06 => Protocol::ISO15765,
+            0x07 => Protocol::SCI_A_ENGINE,
+            0x08 => Protocol::SCI_A_TRANS,
+            0x09 => Protocol::SCI_B_ENGINE,
+            0x0A => Protocol::SCI_B_TRANS,
+            _ => return Err(())
+        })
+    }
 }
 
 impl Display for Protocol {
@@ -52,14 +58,8 @@ impl Display for Protocol {
     }
 }
 
-impl Parsable for Protocol {
-    fn from_raw(x: u32) -> Option<Self> {
-        FromPrimitive::from_u32(x)
-    }
-}
-
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, FromPrimitive)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum IoctlID {
     GET_CONFIG = 0x01,
@@ -77,21 +77,37 @@ pub enum IoctlID {
     READ_PROG_VOLTAGE = 0x0E,
 }
 
+impl TryFrom<u32> for IoctlID {
+    type Error = ();
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            0x01 => IoctlID::GET_CONFIG,
+            0x02 => IoctlID::SET_CONFIG,
+            0x03 => IoctlID::READ_VBATT,
+            0x04 => IoctlID::FIVE_BAUD_INIT,
+            0x05 => IoctlID::FAST_INIT,
+            0x06 => IoctlID::CLEAR_TX_BUFFER,
+            0x07 => IoctlID::CLEAR_RX_BUFFER,
+            0x08 => IoctlID::CLEAR_PERIODIC_MSGS,
+            0x09 => IoctlID::CLEAR_MSG_FILTERS,
+            0x0A => IoctlID::CLEAR_FUNCT_MSG_LOOKUP_TABLE,
+            0x0B => IoctlID::ADD_TO_FUNCT_MSG_LOOKUP_TABLE,
+            0x0D => IoctlID::DELETE_FROM_FUNCT_MSG_LOOKUP_TABLE,
+            0x0E => IoctlID::READ_PROG_VOLTAGE,
+            _ => return Err(())
+        })
+    }
+}
+
 impl std::fmt::Display for IoctlID {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(format!("{:?}", self).as_str())
     }
 }
 
-impl Parsable for IoctlID {
-    fn from_raw(x: u32) -> Option<Self>
-    where Self: Sized {
-        FromPrimitive::from_u32(x)
-    }
-}
-
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, FromPrimitive)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum IoctlParam {
     DATA_RATE = 0x01,
@@ -136,21 +152,61 @@ pub enum IoctlParam {
     CAN_MIXED_FORMAT = 0x8000
 }
 
+impl TryFrom<u32> for IoctlParam {
+    type Error = ();
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            0x01 => IoctlParam::DATA_RATE,
+            0x03 => IoctlParam::LOOPBACK,
+            0x04 => IoctlParam::NODE_ADDRESS,
+            0x05 => IoctlParam::NETWORK_LINE,
+            0x06 => IoctlParam::P1_MIN,
+            0x07 => IoctlParam::P1_MAX,
+            0x08 => IoctlParam::P2_MIN,
+            0x09 => IoctlParam::P2_MAX,
+            0x0A => IoctlParam::P3_MIN,
+            0x0B => IoctlParam::P3_MAX,
+            0x0C => IoctlParam::P4_MIN,
+            0x0D => IoctlParam::P4_MAX,
+            0x0E => IoctlParam::W1,
+            0x0F => IoctlParam::W2,
+            0x10 => IoctlParam::W3,
+            0x11 => IoctlParam::W4,
+            0x12 => IoctlParam::W5,
+            0x13 => IoctlParam::TIDLE,
+            0x14 => IoctlParam::TINL,
+            0x15 => IoctlParam::TWUP,
+            0x16 => IoctlParam::PARITY,
+            0x17 => IoctlParam::BIT_SAMPLE_POINT,
+            0x18 => IoctlParam::SYNCH_JUMP_WIDTH,
+            0x19 => IoctlParam::W0,
+            0x1A => IoctlParam::T1_MAX,
+            0x1B => IoctlParam::T2_MAX,
+            0x1C => IoctlParam::T4_MAX,
+            0x1D => IoctlParam::T5_MAX,
+            0x1E => IoctlParam::ISO15765_BS,
+            0x1F => IoctlParam::ISO15765_STMIN,
+            0x20 => IoctlParam::DATA_BITS,
+            0x21 => IoctlParam::FIVE_BAUD_MOD,
+            0x22 => IoctlParam::BS_TX,
+            0x23 => IoctlParam::STMIN_TX,
+            0x24 => IoctlParam::T3_MAX,
+            0x25 => IoctlParam::ISO15765_WFT_MAX,
+            0x8000 => IoctlParam::CAN_MIXED_FORMAT,
+            _ => return Err(())
+        })
+    }
+}
+
 impl std::fmt::Display for IoctlParam {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(format!("{:?}", self).as_str())
     }
 }
 
-impl Parsable for IoctlParam {
-    fn from_raw(x: u32) -> Option<Self>
-    where Self: Sized {
-        FromPrimitive::from_u32(x)
-    }
-}
-
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum PassthruError {
     STATUS_NOERROR = 0x00,
@@ -184,9 +240,46 @@ pub enum PassthruError {
     ERR_INVALID_DEVICE_ID = 0x1A,
 }
 
-impl Loggable for PassthruError {
-    fn to_string(&self) -> &str {
-        match &self {
+impl TryFrom<u32> for PassthruError {
+    type Error = ();
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            0x00 => PassthruError::STATUS_NOERROR,
+            0x01 => PassthruError::ERR_NOT_SUPPORTED,
+            0x02 => PassthruError::ERR_INVALID_CHANNEL_ID,
+            0x03 => PassthruError::ERR_INVALID_PROTOCOL_ID,
+            0x04 => PassthruError::ERR_NULL_PARAMETER,
+            0x05 => PassthruError::ERR_INVALID_IOCTL_VALUE,
+            0x06 => PassthruError::ERR_INVALID_FLAGS,
+            0x07 => PassthruError::ERR_FAILED,
+            0x08 => PassthruError::ERR_DEVICE_NOT_CONNECTED,
+            0x09 => PassthruError::ERR_TIMEOUT,
+            0x0A => PassthruError::ERR_INVALID_MSG,
+            0x0B => PassthruError::ERR_INVALID_TIME_INTERVAL,
+            0x0C => PassthruError::ERR_EXCEEDED_LIMIT,
+            0x0D => PassthruError::ERR_INVALID_MSG_ID,
+            0x0E => PassthruError::ERR_DEVICE_IN_USE,
+            0x0F => PassthruError::ERR_INVALID_IOCTL_ID,
+            0x10 => PassthruError::ERR_BUFFER_EMPTY,
+            0x11 => PassthruError::ERR_BUFFER_FULL,
+            0x12 => PassthruError::ERR_BUFFER_OVERFLOW,
+            0x13 => PassthruError::ERR_PIN_INVALID,
+            0x14 => PassthruError::ERR_CHANNEL_IN_USE,
+            0x15 => PassthruError::ERR_MSG_PROTOCOL_ID,
+            0x16 => PassthruError::ERR_INVALID_FILTER_ID,
+            0x17 => PassthruError::ERR_NO_FLOW_CONTROL,
+            0x18 => PassthruError::ERR_NOT_UNIQUE,
+            0x19 => PassthruError::ERR_INVALID_BAUDRATE,
+            0x1A => PassthruError::ERR_INVALID_DEVICE_ID,
+            _ => return Err(())
+        })
+    }
+}
+
+impl Display for PassthruError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match &self {
             PassthruError::STATUS_NOERROR => "No Error",
             PassthruError::ERR_NOT_SUPPORTED => "Operation not supported",
             PassthruError::ERR_INVALID_CHANNEL_ID => "Invalid channel ID",
@@ -214,23 +307,30 @@ impl Loggable for PassthruError {
             PassthruError::ERR_NOT_UNIQUE => "An existing filter already matches",
             PassthruError::ERR_INVALID_BAUDRATE => "Unable to set requested baudrate",
             PassthruError::ERR_INVALID_DEVICE_ID => "Device ID not recognized",
-        }
+        })
     }
 }
 
-impl Parsable for PassthruError { 
-    fn from_raw(x: u32) -> Option<Self>
-    where Self: Sized {
-        FromPrimitive::from_u32(x)   
-    }
-}
-
-#[derive(Debug, Copy, Clone, FromPrimitive, PartialEq)]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum FilterType {
     PASS_FILTER = 0x01,
     BLOCK_FILTER = 0x02,
     FLOW_CONTROL_FILTER = 0x03,
+}
+
+impl TryFrom<u32> for FilterType {
+    type Error = ();
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Ok(match value {
+            0x01 => FilterType::PASS_FILTER,
+            0x02 => FilterType::BLOCK_FILTER,
+            0x03 => FilterType::FLOW_CONTROL_FILTER,
+            _ => return Err(())
+        })
+    }
 }
 
 impl std::fmt::Display for FilterType {
@@ -243,38 +343,24 @@ impl std::fmt::Display for FilterType {
     }
 }
 
-impl Loggable for FilterType {
-        fn to_string(&self) -> &str {
-        match &self {
-            FilterType::PASS_FILTER => "Pass filter",
-            FilterType::BLOCK_FILTER => "Block filter",
-            FilterType::FLOW_CONTROL_FILTER => "ISO-TP Flow control filter"
-        }
-    }
-}
-
-impl Parsable for FilterType { 
-    fn from_raw(x: u32) -> Option<Self>
-    where Self: Sized {
-        FromPrimitive::from_u32(x)
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum LoopBackSetting {
     OFF = 0x00,
     ON = 0x01,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum DataBits {
     DATA_BITS_8 = 0x00,
     DATA_BITS_7 = 0x01,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum ParitySetting {
     NO_PARITY = 0x00,
@@ -282,7 +368,8 @@ pub enum ParitySetting {
     EVEN_PARITY = 0x02,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(non_camel_case_types, dead_code)]
 pub enum J1850PWMNetworkLine {
     BUS_NORMAL = 0x00,
@@ -290,31 +377,13 @@ pub enum J1850PWMNetworkLine {
     BUS_MINUS = 0x02,
 }
 
-#[derive(Debug, Copy, Clone, FromPrimitive)]
-#[allow(non_camel_case_types, dead_code)]
-pub enum ConnectFlags {
-    CAN_29BIT_ID = 0x00000100,
-    ISO9141_NO_CHECKSUM = 0x00000200,
-    CAN_ID_BOTH = 0x00000800,
-    ISO15765_ADDR_TYPE = 0x00000080,
-    ISO9141_K_LINE_ONLY = 0x00001000,
-}
-impl Loggable for ConnectFlags {
-    fn to_string(&self) -> &str {
-        match &self {
-            ConnectFlags::CAN_29BIT_ID => "CAN ID 29Bit",
-            ConnectFlags::ISO9141_NO_CHECKSUM => "ISO9141 no checksum",
-            ConnectFlags::CAN_ID_BOTH => "unknown",
-            ConnectFlags::ISO15765_ADDR_TYPE => "ISO-TP Extended addressing",
-            ConnectFlags::ISO9141_K_LINE_ONLY => "ISO9141 only use K-Line"
-        }
-    }
-}
-
-impl Parsable for ConnectFlags {
-    fn from_raw(x: u32) -> Option<Self>
-        where Self: Sized {
-        FromPrimitive::from_u32(x)
+bitflags! {
+    pub struct ConnectFlags: u32 {
+        const CAN_29BIT_ID = 0x00000100;
+        const ISO9141_NO_CHECKSUM = 0x00000200;
+        const CAN_ID_BOTH = 0x00000800;
+        const ISO15765_ADDR_TYPE = 0x00000080;
+        const ISO9141_K_LINE_ONLY = 0x00001000;
     }
 }
 
@@ -346,7 +415,7 @@ bitflags! {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub struct PASSTHRU_MSG {
     pub protocol_id: u32,
@@ -376,7 +445,7 @@ impl std::fmt::Display for PASSTHRU_MSG {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(format!(
             "Protocol: {}, RxStatus: {:08X}, TxFlags: {:08X}, Data: {:02X?}", 
-            Protocol::from_raw(self.protocol_id).unwrap(),
+            Protocol::try_from(self.protocol_id).unwrap(),
             self.rx_status,
             self.tx_flags,
             &self.data[0..self.data_size as usize]
@@ -385,21 +454,21 @@ impl std::fmt::Display for PASSTHRU_MSG {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub struct SBYTE_ARRAY {
     pub num_of_bytes: u32,
     pub byte_ptr: *mut u8,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub struct SConfig {
     pub parameter: u32,
     pub value: u32,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(C)]
 pub struct SConfigList {
     pub num_of_params: u32,
