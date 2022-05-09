@@ -133,6 +133,7 @@ pub enum IoctlParam {
     STMIN_TX = 0x23,
     T3_MAX = 0x24,
     ISO15765_WFT_MAX = 0x25,
+    CAN_MIXED_FORMAT = 0x8000
 }
 
 impl std::fmt::Display for IoctlParam {
